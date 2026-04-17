@@ -4,7 +4,7 @@ import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { 
-  WEATHER_OPTIONS, ACTION_OPTIONS, PAIN_LOCATIONS, OTHER_SYMPTOMS 
+  WEATHER_OPTIONS, ACTION_OPTIONS, OTHER_SYMPTOMS 
 } from '../types';
 
 const getWeatherStringFromCode = (code: number) => {
