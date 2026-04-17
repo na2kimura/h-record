@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { 
-  WEATHER_OPTIONS, ACTION_OPTIONS, OTHER_SYMPTOMS 
+  WEATHER_OPTIONS, ACTION_OPTIONS, OTHER_SYMPTOMS,
+  PAIN_TYPES_OPTIONS, DURATION_OPTIONS
 } from '../types';
 
 const getWeatherStringFromCode = (code: number) => {
@@ -29,6 +30,8 @@ export default function RecordForm() {
   const [actionOther, setActionOther] = useState('');
   const [painLevel, setPainLevel] = useState<number | null>(null);
   const [painLocations, setPainLocations] = useState<string[]>([]);
+  const [painTypes, setPainTypes] = useState<string[]>([]);
+  const [duration, setDuration] = useState<string>('');
   const [otherSymptoms, setOtherSymptoms] = useState<string[]>([]);
   const [memo, setMemo] = useState('');
   
@@ -56,6 +59,8 @@ export default function RecordForm() {
             setActionOther(data.actionOther || '');
             setPainLevel(data.painLevel);
             setPainLocations(data.painLocations || []);
+            setPainTypes(data.painTypes || []);
+            setDuration(data.duration || '');
             setOtherSymptoms(data.otherSymptoms || []);
             setMemo(data.memo || '');
           } else {
@@ -113,6 +118,8 @@ export default function RecordForm() {
         actionOther: action.includes('その他自由記入') ? actionOther : '',
         painLevel,
         painLocations,
+        painTypes,
+        duration,
         otherSymptoms,
         memo,
         updatedAt: Date.now()
@@ -135,6 +142,23 @@ export default function RecordForm() {
       alert('保存に失敗しました。');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    if (window.confirm('この記録を削除してもよろしいですか？')) {
+      setLoading(true);
+      try {
+        const docRef = doc(db, 'records', id);
+        await deleteDoc(docRef);
+        navigate('/');
+      } catch (error) {
+        console.error('Error deleting record:', error);
+        alert('削除に失敗しました。');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -285,6 +309,42 @@ export default function RecordForm() {
           </div>
 
           <div className="form-group">
+            <label className="form-label">頭痛の種類 (複数選択可)</label>
+            <div className="pill-group">
+              {PAIN_TYPES_OPTIONS.map(opt => (
+                <label key={opt} className={`pill-label ${painTypes.includes(opt) ? 'active' : ''}`}>
+                  <input 
+                    type="checkbox" 
+                    name="painTypes" 
+                    value={opt} 
+                    checked={painTypes.includes(opt)} 
+                    onChange={() => toggleArrayItem(setPainTypes, painTypes, opt)} 
+                  />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">頭痛の時間 (1つ選択)</label>
+            <div className="pill-group">
+              {DURATION_OPTIONS.map(opt => (
+                <label key={opt} className={`pill-label ${duration === opt ? 'active' : ''}`}>
+                  <input 
+                    type="radio" 
+                    name="duration" 
+                    value={opt} 
+                    checked={duration === opt} 
+                    onChange={() => setDuration(opt)} 
+                  />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group">
             <label className="form-label">その他体調 (複数選択可)</label>
             <div className="pill-group">
               {OTHER_SYMPTOMS.map(sym => (
@@ -310,14 +370,27 @@ export default function RecordForm() {
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary" 
-            style={{ width: '100%', fontSize: '18px', padding: '16px' }}
-            disabled={loading}
-          >
-            {loading ? '保存中...' : '記録を保存する'}
-          </button>
+          <div style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
+            {id && (
+              <button 
+                type="button" 
+                className="btn btn-danger" 
+                onClick={handleDelete}
+                disabled={loading}
+                style={{ flex: 1, fontSize: '16px', padding: '16px' }}
+              >
+                削除する
+              </button>
+            )}
+            <button 
+              type="submit" 
+              className="btn btn-primary" 
+              style={{ flex: 2, fontSize: '18px', padding: '16px' }}
+              disabled={loading}
+            >
+              {loading ? '保存中...' : '記録を保存する'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

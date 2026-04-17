@@ -162,13 +162,19 @@ export default function Dashboard() {
                   痛み: {record.painLevel}
                 </span>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '8px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   天気: <WeatherIcon weather={record.weather} size={14} />
                 </span> 
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   部位: {record.painLocations?.length > 0 ? <PainLocationDiagram locations={record.painLocations || []} /> : 'なし'}
                 </span>
+                {record.painTypes && record.painTypes.length > 0 && (
+                  <span>種類: {record.painTypes.join(', ')}</span>
+                )}
+                {record.duration && (
+                  <span>時間: {record.duration}</span>
+                )}
               </div>
               <div style={{ fontSize: '15px' }}>
                 行動: {
@@ -185,10 +191,12 @@ export default function Dashboard() {
               <tr>
                 <th>日時</th>
                 <th>痛み</th>
-                <th>天気</th>
-                <th>行動</th>
+                <th>種類</th>
+                <th>時間</th>
                 <th>部位</th>
                 <th>体調</th>
+                <th>行動</th>
+                <th>天気</th>
                 <th>メモ</th>
               </tr>
             </thead>
@@ -197,15 +205,8 @@ export default function Dashboard() {
                 <tr key={r.id}>
                   <td>{r.date.slice(5)}<br/>{r.time}</td>
                   <td>{r.painLevel}</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <WeatherIcon weather={r.weather} size={12} /> {r.weather}
-                    </div>
-                  </td>
-                  <td>
-                    {Array.isArray(r.action) ? r.action.join(', ') : r.action}
-                    {r.actionOther ? ` (${r.actionOther})` : ''}
-                  </td>
+                  <td>{r.painTypes?.join(', ')}</td>
+                  <td>{r.duration}</td>
                   <td>
                     {r.painLocations?.length > 0 ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -214,6 +215,15 @@ export default function Dashboard() {
                     ) : ''}
                   </td>
                   <td>{r.otherSymptoms?.join(', ')}</td>
+                  <td>
+                    {Array.isArray(r.action) ? r.action.join(', ') : r.action}
+                    {r.actionOther ? ` (${r.actionOther})` : ''}
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <WeatherIcon weather={r.weather} size={12} /> {r.weather}
+                    </div>
+                  </td>
                   <td>{r.memo}</td>
                 </tr>
               ))}
