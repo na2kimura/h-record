@@ -25,4 +25,4 @@ export const PAIN_TYPES_OPTIONS = ['ガンガン', 'ズキズキ', 'キンキン
 
 export const DURATION_OPTIONS = ['〜5分', '5〜30分', '30〜60分', '1時間以上'];
 
-export const OTHER_SYMPTOMS = ['腹痛', '吐き気', '眩暈', '動悸', '生理'];
+export const OTHER_SYMPTOMS = ['腹痛', '吐き気', '眩暈', '動悸', '心臓が痛い', '不整脈', '生理', '濡れたアンパンマン'];
